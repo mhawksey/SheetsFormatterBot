@@ -1,36 +1,51 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
-    <!-- Use a templated HTML printing scriptlet to import common stylesheet -->
-    <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
-  </head>
-  <body>
-    <!-- Below is the HTML code that defines the sidebar element structure. -->
-    <div class="sidebar branding-below">
-      <p>
-        This sidebar allows you to pull a value from a cell into the sidebar
-        and place a value from the sidebar into a cell.
-      </p>
-      <div class="block form-group" id="sidebar-value-block">
-        <label for="sidebar-value">Sidebar value:</label>
-        <input id="sidebar-value" value="1">
-      </div>
-      <div class="block" id="sidebar-button-bar">
-        <button id="sidebar-pull-button">Pull</button>
-        <button id="sidebar-put-button">Put</button>
-      </div>
-      <div id="sidebar-status"></div>
-    </div>
 
-    <!-- Enter sidebar bottom-branding below. -->
-    <div class="sidebar bottom">
-      <img alt="Add-on logo" class="logo" width="25"
-          src="https://googledrive.com/host/0B0G1UdyJGrY6XzdjQWF4a1JYY1k/apps-script_2x.png">
-      <span class="gray branding-text">Spreadsheet Add-on Template by Google</span>
-    </div>
+<head>
+  <base target="_top">
+  <!--Import Google Icon Font-->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
-    <!-- Use a templated HTML printing scriptlet to import JavaScript. -->
-    <?!= HtmlService.createHtmlOutputFromFile('SidebarJavaScript').getContent(); ?>
-  </body>
+  <!-- Use a templated HTML printing scriptlet to import common stylesheet -->
+  <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+</head>
+
+<body style="margin-right:5px">
+  <!-- Below is the HTML code that defines the sidebar element structure. -->
+  <div class="sidebar branding-below">
+    <div class="row">
+      <div class="input-field col s12">
+        <a id="record" class="btn-floating grey lighten-5 waves-effect waves-light postfix "><i class="material-icons ">mic_none</i></a>
+        <textarea id="command" class="materialize-textarea"></textarea>
+      </div>
+      <div class="row">
+        <div class="col s12">
+          <ul class="collection" id="history">
+            
+          </ul>
+        </div>
+      </div>
+    </div>
+<section class="main-controls">
+        <div id="buttons">
+          <button class="record">Record</button>
+          <button class="stop">Stop</button>
+        </div>
+      </section>
+
+      <section class="sound-clips">
+
+
+      </section>
+    <div id="sidebar-status"></div>
+  </div>
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <!-- Use a templated HTML printing scriptlet to import JavaScript. -->
+  <?!= HtmlService.createHtmlOutputFromFile('SidebarJavaScript').getContent(); ?>
+</body>
+
 </html>

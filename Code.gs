@@ -2,8 +2,7 @@
  * @OnlyCurrentDoc  Limits the script to only accessing the current spreadsheet.
  */
 
-var DIALOG_TITLE = 'Example Dialog';
-var SIDEBAR_TITLE = 'Example Sidebar';
+var SIDEBAR_TITLE = 'Highlight Explorer';
 
 /**
  * Adds a custom menu with items to show the sidebar and dialog.
@@ -13,8 +12,8 @@ var SIDEBAR_TITLE = 'Example Sidebar';
 function onOpen(e) {
   SpreadsheetApp.getUi()
       .createAddonMenu()
-      .addItem('Show sidebar', 'showSidebar')
-      .addItem('Show dialog', 'showDialog')
+      .addItem('Start', 'showSidebar')
+      .addItem('Reset', 'reset')
       .addToUi();
 }
 
@@ -33,25 +32,13 @@ function onInstall(e) {
  * project file.
  */
 function showSidebar() {
-  var ui = HtmlService.createTemplateFromFile('Sidebar')
+  var ui = HtmlService.createTemplateFromFile('index')
       .evaluate()
       .setTitle(SIDEBAR_TITLE)
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);
   SpreadsheetApp.getUi().showSidebar(ui);
 }
 
-/**
- * Opens a dialog. The dialog structure is described in the Dialog.html
- * project file.
- */
-function showDialog() {
-  var ui = HtmlService.createTemplateFromFile('Dialog')
-      .evaluate()
-      .setWidth(400)
-      .setHeight(190)
-      .setSandboxMode(HtmlService.SandboxMode.IFRAME);
-  SpreadsheetApp.getUi().showModalDialog(ui, DIALOG_TITLE);
-}
 
 /**
  * Returns the value in the active cell.
