@@ -32,7 +32,7 @@ function onInstall(e) {
  * project file.
  */
 function showSidebar() {
-  var ui = HtmlService.createTemplateFromFile('flac')
+  var ui = HtmlService.createTemplateFromFile('Sidebar')
       .evaluate()
       .setTitle(SIDEBAR_TITLE)
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);
