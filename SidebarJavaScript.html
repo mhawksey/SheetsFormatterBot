@@ -1,12 +1,12 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
+  var REC_STATUS = 'stopped';
   /**
    * Run initializations on sidebar load.
    */
   $(function() {
     // Assign handler functions to sidebar elements here, if needed.
-    $('#sidebar-pull-button').click(onPullClick);
-    $('#sidebar-put-button').click(onPutClick);
+    $('#record').click(recordStatus);
     $('#command').keypress(function (e) {
                            var key = e.which;
                            if(key == 13) {
@@ -19,87 +19,53 @@
     // Call the server here to retrieve any information needed to build
     // the dialog, if necessary.
   });
-  
+
+function recordStatus(){
+if (REC_STATUS === 'stopped'){
+ $('#record').addClass('recording');
+ startRecording();
+ REC_STATUS = 'recording';
+} else if (REC_STATUS === 'recording'){
+ $('#record').removeClass('recording');
+ stopRecording();
+ REC_STATUS = 'stopped';
+}
+
+}
+
   function sendCommand(text){
      // Send the value to the server and handle the response.
     google.script.run
-        .withSuccessHandler(
-          function(intent) {
+        .withSuccessHandler(sucessHandler)
+        .withFailureHandler(failureHandler)
+        .handleCommand(text, 'text');
+  }
+
+function sucessHandler(intent) {
             // Respond to success conditions here.
             console.log(intent)
             $('#command').prop('disabled', false).val('');
             M.textareaAutoResize($('#command'));
             $('#history').prepend( $( '<li class="collection-item"><i class="material-icons quote">format_quote</i>'+intent.queryResult.queryText+'</li>'));
+            $('#processingAudio').hide();
             //showStatus('Pulled value successfully.');
             //element.disabled = false;
-          })
-        .withFailureHandler(
-          function(intent) {
+          }
+function failureHandler(intent){
             // Respond to failure conditions here.
             $('#command').prop('disabled', false);
-            showStatus(msg, 'error');
+            console.log(intent);
+            showStatus(intent, 'error');
+            $('#processingAudio').hide();
             //element.disabled = false;
-          })
-        .handleCommand(text);
-  }
+}
 
   /**
    * Calls the server to retrieve information from the sheet.
    * Gets the value in the active cell, which is then placed in the
    * sidebar text field.
    */
-  function onPullClick() {
-    this.disabled = true;
 
-    // Gather any information that needs to be sent to the server here.
-
-    // Send the value to the server and handle the response.
-    google.script.run
-        .withSuccessHandler(
-          function(msg, element) {
-            // Respond to success conditions here.
-            $('#sidebar-value').val(msg);
-            showStatus('Pulled value successfully.');
-            element.disabled = false;
-          })
-        .withFailureHandler(
-          function(msg, element) {
-            // Respond to failure conditions here.
-            showStatus(msg, 'error');
-            element.disabled = false;
-          })
-        .withUserObject(this)
-        .getActiveValue();
-  }
-
-  /**
-   * Calls the server to modify the sheet.
-   * Replace the currently selected cell value with the value in the
-   * sidebar text field.
-   */
-  function onPutClick() {
-    this.disabled = true;
-
-    // Gather any information that needs to be sent to the server here.
-    var value = $('#sidebar-value').val();
-
-    // Send the value to the server and handle the response.
-    google.script.run
-        .withSuccessHandler(
-          function(msg, element) {
-            // Respond to success conditions here.
-            showStatus('Cell set to reference value: ' + value);
-            element.disabled = false;
-          })
-        .withFailureHandler(
-          function(msg, element) {
-            // Respond to failure conditions here.
-            showStatus(msg, 'error');
-            element.disabled = false;
-          })
-        .withUserObject(this)
-        .setActiveValue(value);
-  }
 
   /**
    * Displays the given status message in the sidebar.
@@ -115,134 +81,4 @@
     }
   }
 
-</script>
-<script>
-// set up basic variables for app
-
-var record = document.querySelector('.record');
-var stop = document.querySelector('.stop');
-var soundClips = document.querySelector('.sound-clips');
-//var canvas = document.querySelector('.visualizer');
-var mainSection = document.querySelector('.main-controls');
-
-// disable stop button while not recording
-
-stop.disabled = true;
-
-// visualiser setup - create web audio api context and canvas
-
-//var audioCtx = new (window.AudioContext || webkitAudioContext)();
-//var canvasCtx = canvas.getContext("2d");
-
-//main block for doing the audio recording
-
-if (navigator.mediaDevices.getUserMedia) {
-  console.log('getUserMedia supported.');
-
-  var constraints = { audio: true };
-  var chunks = [];
-
-  var onSuccess = function(stream) {
-    var mediaRecorder = new MediaRecorder(stream);
-
-    //visualize(stream);
-
-    record.onclick = function() {
-      mediaRecorder.start();
-      console.log(mediaRecorder.state);
-      console.log("recorder started");
-      record.style.background = "red";
-
-      stop.disabled = false;
-      record.disabled = true;
-    }
-
-    stop.onclick = function() {
-      mediaRecorder.stop();
-      console.log(mediaRecorder.state);
-      console.log("recorder stopped");
-      record.style.background = "";
-      record.style.color = "";
-      // mediaRecorder.requestData();
-
-      stop.disabled = true;
-      record.disabled = false;
-    }
-
-    mediaRecorder.onstop = function(e) {
-      console.log("data available after MediaRecorder.stop() called.");
-
-      //var clipName = prompt('Enter a name for your sound clip?','My unnamed clip');
-      var clipName = 'My unnamed clip';
-      console.log(clipName);
-      var clipContainer = document.createElement('article');
-      var clipLabel = document.createElement('p');
-      var audio = document.createElement('audio');
-      var deleteButton = document.createElement('button');
-     
-      clipContainer.classList.add('clip');
-      audio.setAttribute('controls', '');
-      deleteButton.textContent = 'Delete';
-      deleteButton.className = 'delete';
-
-      if(clipName === null) {
-        clipLabel.textContent = 'My unnamed clip';
-      } else {
-        clipLabel.textContent = clipName;
-      }
-
-      clipContainer.appendChild(audio);
-      clipContainer.appendChild(clipLabel);
-      clipContainer.appendChild(deleteButton);
-      soundClips.appendChild(clipContainer);
-
-      audio.controls = true;
-      var blob = new Blob(chunks, { 'type' : 'audio/ogg; codecs=opus' });
-      chunks = [];
-      var audioURL = window.URL.createObjectURL(blob);
-      blobToDataURL(blob, function(uri){
-                   google.script.run.withSuccessHandler(function(driveUrl){
-                       console.log(driveUrl);
-                     }).handleAudioCommand(uri);
-                   });
-      audio.src = audioURL;
-      console.log("recorder stopped");
-
-      deleteButton.onclick = function(e) {
-        evtTgt = e.target;
-        evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
-      }
-
-      clipLabel.onclick = function() {
-        var existingName = clipLabel.textContent;
-        var newClipName = prompt('Enter a new name for your sound clip?');
-        if(newClipName === null) {
-          clipLabel.textContent = existingName;
-        } else {
-          clipLabel.textContent = newClipName;
-        }
-      }
-    }
-
-    mediaRecorder.ondataavailable = function(e) {
-      chunks.push(e.data);
-    }
-  }
-
-  var onError = function(err) {
-    console.log('The following error occured: ' + err);
-  }
-
-  navigator.mediaDevices.getUserMedia(constraints).then(onSuccess, onError);
-
-} else {
-   console.log('getUserMedia not supported on your browser!');
-}
-function blobToDataURL(blob, callback) {
-            var a = new FileReader();
-            a.onload = function (e) {
-                callback(e.target.result);
-            }
-            a.readAsDataURL(blob);
-        }
 </script>

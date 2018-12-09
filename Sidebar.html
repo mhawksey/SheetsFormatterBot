@@ -12,40 +12,76 @@
   <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
 </head>
 
-<body style="margin-right:5px">
+<body style="margin-right:10px;overflow-x:hidden;">
   <!-- Below is the HTML code that defines the sidebar element structure. -->
   <div class="sidebar branding-below">
     <div class="row">
-      <div class="input-field col s12">
+      <div class="input-field col s12">          
         <a id="record" class="btn-floating grey lighten-5 waves-effect waves-light postfix "><i class="material-icons ">mic_none</i></a>
+            <div id="processingAudio" class="preloader-wrapper medium active processing" style="display:none">
+              <div class="spinner-layer spinner-blue">
+                <div class="circle-clipper left">
+                  <div class="circle"></div>
+                </div><div class="gap-patch">
+                  <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                  <div class="circle"></div>
+                </div>
+              </div>
+
+              <div class="spinner-layer spinner-red">
+                <div class="circle-clipper left">
+                  <div class="circle"></div>
+                </div><div class="gap-patch">
+                  <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                  <div class="circle"></div>
+                </div>
+              </div>
+
+              <div class="spinner-layer spinner-yellow">
+                <div class="circle-clipper left">
+                  <div class="circle"></div>
+                </div><div class="gap-patch">
+                  <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                  <div class="circle"></div>
+                </div>
+              </div>
+
+              <div class="spinner-layer spinner-green">
+                <div class="circle-clipper left">
+                  <div class="circle"></div>
+                </div><div class="gap-patch">
+                  <div class="circle"></div>
+                </div><div class="circle-clipper right">
+                  <div class="circle"></div>
+                </div>
+              </div>
+            </div>
         <textarea id="command" class="materialize-textarea"></textarea>
       </div>
       <div class="row">
         <div class="col s12">
           <ul class="collection" id="history">
-            
+            <li class="collection-item"><i class="material-icons reply">format_quote</i>What would you like me to highlight?</li>
           </ul>
         </div>
       </div>
     </div>
-<section class="main-controls">
-        <div id="buttons">
-          <button class="record">Record</button>
-          <button class="stop">Stop</button>
-        </div>
-      </section>
-
-      <section class="sound-clips">
-
-
-      </section>
     <div id="sidebar-status"></div>
   </div>
-
+    <!-- Use a templated HTML printing scriptlet to import JavaScript. -->
+  <?!= HtmlService.createHtmlOutputFromFile('SidebarJavaScript').getContent(); ?>
+    <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
+  	<script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+  	<?!= HtmlService.createHtmlOutputFromFile('app.js').getContent(); ?>
+  
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-  <!-- Use a templated HTML printing scriptlet to import JavaScript. -->
-  <?!= HtmlService.createHtmlOutputFromFile('SidebarJavaScript').getContent(); ?>
+  
+
+
 </body>
 
 </html>

@@ -38,9 +38,14 @@
 .collection .collection-item{
     padding: 7px 5px;
 }
+.quote, .reply{
+color:#bbb;
+}
 .quote{
 float:left;
-color:#bbb;
+}
+.reply{
+float:right;
 }
 
 .input-field .postfix ~ textarea {
@@ -60,5 +65,16 @@ color:#bbb;
 }
 #record i {
   color:#f44336;
+}
+#record.recording{
+background-color: #F44336 !important;
+}
+#record.recording i{
+color:#fafafa; 
+}
+.processing{
+    position: absolute;
+    right: -3px;
+    top: 2px;
 }
 </style>
