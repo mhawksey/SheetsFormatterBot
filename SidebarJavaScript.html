@@ -4,61 +4,63 @@
   /**
    * Run initializations on sidebar load.
    */
-  $(function() {
+  $(function () {
     // Assign handler functions to sidebar elements here, if needed.
     $('#record').click(recordStatus);
     $('#command').keypress(function (e) {
-                           var key = e.which;
-                           if(key == 13) {
-                             $(this).prop('disabled', true);
-                             sendCommand($(this).val());
-                             return false;  
-                           }
+      var key = e.which;
+      if (key == 13) {
+        $(this).prop('disabled', true);
+        sendCommand($(this).val());
+        return false;
+      }
     });
 
     // Call the server here to retrieve any information needed to build
     // the dialog, if necessary.
   });
 
-function recordStatus(){
-if (REC_STATUS === 'stopped'){
- $('#record').addClass('recording');
- startRecording();
- REC_STATUS = 'recording';
-} else if (REC_STATUS === 'recording'){
- $('#record').removeClass('recording');
- stopRecording();
- REC_STATUS = 'stopped';
-}
+  function recordStatus() {
+    if (REC_STATUS === 'stopped') {
+      $('#record').addClass('recording');
+      startRecording();
+      REC_STATUS = 'recording';
+    } else if (REC_STATUS === 'recording') {
+      $('#record').removeClass('recording');
+      stopRecording();
+      REC_STATUS = 'stopped';
+    }
 
-}
-
-  function sendCommand(text){
-     // Send the value to the server and handle the response.
-    google.script.run
-        .withSuccessHandler(sucessHandler)
-        .withFailureHandler(failureHandler)
-        .handleCommand(text, 'text');
   }
 
-function sucessHandler(intent) {
-            // Respond to success conditions here.
-            console.log(intent)
-            $('#command').prop('disabled', false).val('');
-            M.textareaAutoResize($('#command'));
-            $('#history').prepend( $( '<li class="collection-item"><i class="material-icons quote">format_quote</i>'+intent.queryResult.queryText+'</li>'));
-            $('#processingAudio').hide();
-            //showStatus('Pulled value successfully.');
-            //element.disabled = false;
-          }
-function failureHandler(intent){
-            // Respond to failure conditions here.
-            $('#command').prop('disabled', false);
-            console.log(intent);
-            showStatus(intent, 'error');
-            $('#processingAudio').hide();
-            //element.disabled = false;
-}
+  function sendCommand(text) {
+    // Send the value to the server and handle the response.
+    google.script.run
+      .withSuccessHandler(sucessHandler)
+      .withFailureHandler(failureHandler)
+      .handleCommand(text, 'text');
+  }
+
+  function sucessHandler(intent) {
+    // Respond to success conditions here.
+    console.log(intent)
+    $('#command').prop('disabled', false).val('');
+    M.textareaAutoResize($('#command'));
+    $('#history').prepend($('<li class="collection-item"><i class="material-icons quote">format_quote</i>' + intent.queryResult
+      .queryText + '</li>'));
+    $('#processingAudio').hide();
+    //showStatus('Pulled value successfully.');
+    //element.disabled = false;
+  }
+
+  function failureHandler(intent) {
+    // Respond to failure conditions here.
+    $('#command').prop('disabled', false);
+    console.log(intent);
+    showStatus(intent, 'error');
+    $('#processingAudio').hide();
+    //element.disabled = false;
+  }
 
   /**
    * Calls the server to retrieve information from the sheet.
@@ -80,5 +82,4 @@ function failureHandler(intent){
       $('#sidebar-status').addClass(classId);
     }
   }
-
 </script>
