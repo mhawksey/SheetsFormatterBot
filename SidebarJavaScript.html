@@ -15,11 +15,10 @@
         return false;
       }
     });
-
-    // Call the server here to retrieve any information needed to build
-    // the dialog, if necessary.
+    $('#history').prepend($('<li class="collection-item reply"><i class="material-icons">format_quote</i>What would you like me to highlight?</li>'));
   });
-
+  
+  // handle mic button 
   function recordStatus() {
     if (REC_STATUS === 'stopped') {
       $('#record').addClass('recording');
@@ -32,7 +31,8 @@
     }
 
   }
-
+  
+  // function to send text inputs
   function sendCommand(text) {
     // Send the value to the server and handle the response.
     google.script.run
@@ -40,34 +40,28 @@
       .withFailureHandler(failureHandler)
       .handleCommand(text, 'text');
   }
-
+  
+  // Handle responses from Dialogflow
   function sucessHandler(intent) {
     // Respond to success conditions here.
     console.log(intent)
     $('#command').prop('disabled', false).val('');
     M.textareaAutoResize($('#command'));
-    $('#history').prepend($('<li class="collection-item"><i class="material-icons quote">format_quote</i>' + intent.queryResult
-      .queryText + '</li>'));
+    $('#history').prepend($('<li class="collection-item quote"><i class="material-icons">format_quote</i>' + intent.queryResult.queryText + '</li>'));
+    if (intent.queryResult.fulfillmentText){
+      $('#history').prepend($('<li class="collection-item reply"><i class="material-icons">format_quote</i>' + intent.queryResult.fulfillmentText + '</li>'));
+    }
     $('#processingAudio').hide();
-    //showStatus('Pulled value successfully.');
-    //element.disabled = false;
   }
 
+  // Handle if something goes wrong
   function failureHandler(intent) {
     // Respond to failure conditions here.
     $('#command').prop('disabled', false);
     console.log(intent);
     showStatus(intent, 'error');
     $('#processingAudio').hide();
-    //element.disabled = false;
   }
-
-  /**
-   * Calls the server to retrieve information from the sheet.
-   * Gets the value in the active cell, which is then placed in the
-   * sidebar text field.
-   */
-
 
   /**
    * Displays the given status message in the sidebar.
