@@ -2,7 +2,7 @@
  * @OnlyCurrentDoc  Limits the script to only accessing the current spreadsheet.
  */
 
-var PROJECT_ID = 'formatter-a40bd'; // <- your Dialogflow proejct ID
+var PROJECT_ID = 'YOUR_DIALOGFLOW_PROJECT_ID'; // <- your Dialogflow proejct ID
 var SIDEBAR_TITLE = 'Highlight Explorer';
 
 /**
