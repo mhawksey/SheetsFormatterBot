@@ -17,7 +17,10 @@
   <div class="sidebar branding-below">
     <div class="row">
       <div class="input-field col s12">
+      
         <a id="record" class="btn-floating grey lighten-5 waves-effect waves-light postfix "><i class="material-icons ">mic_none</i></a>
+        
+        <!-- Start of record processing spinner -->
         <div id="processingAudio" class="preloader-wrapper medium active processing" style="display:none">
           <div class="spinner-layer spinner-blue">
             <div class="circle-clipper left">
@@ -30,7 +33,7 @@
               <div class="circle"></div>
             </div>
           </div>
-
+          
           <div class="spinner-layer spinner-red">
             <div class="circle-clipper left">
               <div class="circle"></div>
@@ -67,6 +70,7 @@
             </div>
           </div>
         </div>
+        <!-- End of record processing spinner -->
         <textarea id="command" class="materialize-textarea"></textarea>
       </div>
       <div class="row">
@@ -78,15 +82,19 @@
     </div>
     <div id="sidebar-status"></div>
   </div>
-  
+
   <!-- Use a templated HTML printing scriptlet to import JavaScript. -->
   <?!= HtmlService.createHtmlOutputFromFile('SidebarJavaScript').getContent(); ?>
+
+  <!-- inserting these scripts at the end to be able to use all the elements in the DOM
+  <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>  -->
   
-  <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
-  <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+  <?!= HtmlService.createHtmlOutputFromFile('Recorder.js').getContent(); ?>
+  
   <?!= HtmlService.createHtmlOutputFromFile('app.js').getContent(); ?>
 
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
+
 </html>

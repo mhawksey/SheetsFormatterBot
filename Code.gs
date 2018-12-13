@@ -1,15 +1,16 @@
 /**
  * @OnlyCurrentDoc  Limits the script to only accessing the current spreadsheet.
  */
+ 
+// *** Search for '<-' for strings to update *** 
 
-var PROJECT_ID = 'YOUR_DIALOGFLOW_PROJECT_ID'; // <- your Dialogflow proejct ID
 var SIDEBAR_TITLE = 'Highlight Explorer';
 
 /**
  * One off setup for Dialogflow service account
  */
 function oneOffSetting() { 
-  var file = DriveApp.getFilesByName('NAME_OF_JSON_KEY.json').next();
+  var file = DriveApp.getFilesByName('YOUR_SERVICE_ACCOUNT_KEY.json').next(); // <- your key file name
   // used by all using this script
   var propertyStore = PropertiesService.getScriptProperties();
   // service account for our Dialogflow agent
@@ -18,7 +19,8 @@ function oneOffSetting() {
       packageName: 'dialogflow_serviceaccount',
       fileId: file.getId(),
       scopes : cGoa.GoaApp.scopesGoogleExpand (['cloud-platform']),
-      service:'google_service'
+      service:'google_service',
+      project_id: 'YOUR_DIALOGFLOW_PROJECT_ID' // <- your Dialogflow Agent Project ID
     }));
 }
 
@@ -81,7 +83,8 @@ function handleCommand(input, type){
   
   var colIdx = convertCol(param.column);
   var range = param.range || 'cells';
-  var color = param.color.replace(/\s/g, "") || 'red';
+  var color = param.color || 'red'; 
+  color.replace(/\s/g, "");
   var value = param.number;
   var operator = param.operator;
   
@@ -121,8 +124,11 @@ function detectMessageIntent(input, type, optLang){
   if (!goa.hasToken()) {
     throw 'something went wrong with goa - no token for calls';
   }
+  
   // set our token 
   Dialogflow.setTokenService(function(){ return goa.getToken(); } );
+  
+  var PROJECT_ID = goa.getProperty("project_id"); 
    
   /* Preparing the Dialogflow.projects.agent.sessions.detectIntent call 
    * https://cloud.google.com/dialogflow-enterprise/docs/reference/rest/v2/projects.agent.sessions/detectIntent
