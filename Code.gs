@@ -1,28 +1,8 @@
 /**
  * @OnlyCurrentDoc  Limits the script to only accessing the current spreadsheet.
  */
- 
-// *** Search for '<-' for strings to update *** 
 
 var SIDEBAR_TITLE = 'Highlight Explorer';
-
-/**
- * One off setup for Dialogflow service account
- */
-function oneOffSetting() { 
-  var file = DriveApp.getFilesByName('YOUR_SERVICE_ACCOUNT_KEY.json').next(); // <- your key file name
-  // used by all using this script
-  var propertyStore = PropertiesService.getScriptProperties();
-  // service account for our Dialogflow agent
-  cGoa.GoaApp.setPackage (propertyStore , 
-    cGoa.GoaApp.createServiceAccount (DriveApp , {
-      packageName: 'dialogflow_serviceaccount',
-      fileId: file.getId(),
-      scopes : cGoa.GoaApp.scopesGoogleExpand (['cloud-platform']),
-      service:'google_service',
-      project_id: 'YOUR_DIALOGFLOW_PROJECT_ID' // <- your Dialogflow Agent Project ID
-    }));
-}
 
 /**
  * Adds a custom menu with items to show the sidebar and dialog.
@@ -67,12 +47,12 @@ function showSidebar() {
  */
 function handleCommand(input, type){
   var intent = detectMessageIntent(input, type);
-  
-  if (!intent.queryResult && !!intent.queryResult.parameters){
-    return intent
+  // if not all required parameters return the intent to continue the conversation
+  if (!("allRequiredParamsPresent" in intent.queryResult)){
+    return intent;
   }
-  var param = intent.queryResult.parameters;
   
+  var param = intent.queryResult.parameters;
   var doc = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = doc.getActiveSheet();
   var dataRange = sheet.getDataRange();
@@ -80,17 +60,12 @@ function handleCommand(input, type){
   var values = dataRange.getValues();
   var colors = dataRange.getBackgrounds();
   var count = 0;
-  
   var colIdx = convertCol(param.column);
   var range = param.range || 'cells';
   var color = param.color || 'red'; 
-  color.replace(/\s/g, "");
+  color = color.replace(/\s/g, "");
   var value = param.number;
   var operator = param.operator;
-  
-  if(!operator || !value){
-    return intent;
-  }
   
   // setup functions to handle action operators
   if (range === 'cells'){
@@ -194,6 +169,7 @@ function convertCol(val) {
   if (!val){
     return false;
   }
+  val = val.toUpperCase();
   var base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', i, j, result = 0;
 
   for (i = 0, j = val.length - 1; i < val.length; i += 1, j -= 1) {

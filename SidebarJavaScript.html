@@ -51,6 +51,7 @@
     if (intent.queryResult.fulfillmentText){
       $('#history').prepend($('<li class="collection-item reply"><i class="material-icons">format_quote</i>' + intent.queryResult.fulfillmentText + '</li>'));
     }
+    $('#command').focus();
     $('#processingAudio').hide();
   }
 
