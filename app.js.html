@@ -1,7 +1,5 @@
 <script>
 	// based on https://github.com/addpipe/simple-recorderjs-demo
-	//webkitURL is deprecated but nevertheless
-	URL = window.URL || window.webkitURL;
 
 	var gumStream; //stream from getUserMedia()
 	var rec; //Recorder.js object
@@ -38,6 +36,7 @@
 				the sampleRate defaults to the one set in your OS for your playback device
 			*/
 			audioContext = new AudioContext();
+            console.log("Sample rate: "+audioContext.sampleRate);
 
 			/*  assign to gumStream for later use  */
 			gumStream = stream;
@@ -47,7 +46,7 @@
 
 			/* 
 				Create the Recorder object and configure to record mono sound (1 channel)
-				Recording 2 channels  will double the file size
+				Recording 2 channels will double the file size.
 			*/
 			rec = new Recorder(input, {
 				numChannels: 1
@@ -79,9 +78,8 @@
 
 	function returnAudioToServer(blob) {
 		console.log("Return audio to server");
-		var url = URL.createObjectURL(blob);
 		blobToDataURL(blob, function (uri) {
-			google.script.run.withSuccessHandler(sucessHandler).handleCommand(uri, 'audio');
+            sendCommand(uri, 'audio');
 		});
 	}
 

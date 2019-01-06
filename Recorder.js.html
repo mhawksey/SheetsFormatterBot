@@ -47,6 +47,7 @@ var Recorder = exports.Recorder = (function () {
         this.config = {
             bufferLen: 4096,
             numChannels: 2,
+            targetRate: 48000,
             mimeType: 'audio/wav'
         };
         this.recording = false;
@@ -105,6 +106,7 @@ var Recorder = exports.Recorder = (function () {
             function init(config) {
                 sampleRate = config.sampleRate;
                 numChannels = config.numChannels;
+                targetRate = config.targetRate;
                 initBuffers();
             }
 
@@ -126,7 +128,8 @@ var Recorder = exports.Recorder = (function () {
                 } else {
                     interleaved = buffers[0];
                 }
-                var dataview = encodeWAV(interleaved);
+                var downsampledBuffer = downsampleBuffer(interleaved);
+                var dataview = encodeWAV(downsampledBuffer);
                 var audioBlob = new Blob([dataview], { type: type });
 
                 self.postMessage({ command: 'exportWAV', data: audioBlob });
@@ -189,6 +192,36 @@ var Recorder = exports.Recorder = (function () {
                     view.setUint8(offset + i, string.charCodeAt(i));
                 }
             }
+            
+            // https://github.com/mattdiamond/Recorderjs/issues/186#issuecomment-413838080
+            function downsampleBuffer(buffer) {
+                if (targetRate == sampleRate) {
+                    return buffer;
+                }
+                if (targetRate > sampleRate) {
+                    throw "downsampling rate show be smaller than original sample rate";
+                }
+                var sampleRateRatio = sampleRate / targetRate;
+                var newLength = Math.round(buffer.length / sampleRateRatio);
+                var result = new Float32Array(newLength);
+                var offsetResult = 0;
+                var offsetBuffer = 0;
+                while (offsetResult < result.length) {
+                    var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+                     // Use average value of skipped samples
+                    var accum = 0, count = 0;
+                    for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+                        accum += buffer[i];
+                        count++;
+                    }
+                    result[offsetResult] = accum / count;
+                    // Or you can simply get rid of the skipped samples:
+                    // result[offsetResult] = buffer[nextOffsetBuffer];
+                    offsetResult++;
+                    offsetBuffer = nextOffsetBuffer;
+                }
+                return result;
+            }
 
             function encodeWAV(samples) {
                 var buffer = new ArrayBuffer(44 + samples.length * 2);
@@ -209,9 +242,9 @@ var Recorder = exports.Recorder = (function () {
                 /* channel count */
                 view.setUint16(22, numChannels, true);
                 /* sample rate */
-                view.setUint32(24, sampleRate, true);
+                view.setUint32(24, targetRate, true);
                 /* byte rate (sample rate * block align) */
-                view.setUint32(28, sampleRate * 4, true);
+                view.setUint32(28, targetRate * 4, true);
                 /* block align (channel count * bytes per sample) */
                 view.setUint16(32, numChannels * 2, true);
                 /* bits per sample */
@@ -231,7 +264,8 @@ var Recorder = exports.Recorder = (function () {
             command: 'init',
             config: {
                 sampleRate: this.context.sampleRate,
-                numChannels: this.config.numChannels
+                numChannels: this.config.numChannels,
+                targetRate: this.config.targetRate
             }
         });
 
@@ -359,5 +393,3 @@ module.exports = InlineWorker;
 },{}]},{},[1])(1)
 });
 </script>
-
-

@@ -12,9 +12,12 @@
   <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
 </head>
 
-<body style="margin-right:10px;overflow-x:hidden;">
+<body style="overflow-x:hidden;">
+  <div id="processing" class="progress">
+      <div class="indeterminate"></div>
+  </div>
   <!-- Below is the HTML code that defines the sidebar element structure. -->
-  <div class="sidebar branding-below">
+  <div id="sidebar">
     <div class="row">
       <div class="input-field col s12">
       

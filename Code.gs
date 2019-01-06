@@ -43,45 +43,51 @@ function showSidebar() {
  * Handle text/audio requests from user.
  * @param {String|Audio} from user
  * @param {String} type of request
- * @return {object} JSON-formatted response
+ * @param {String} lang of request
+ * @return {object} JSON-formatted intent response
  */
-function handleCommand(input, type){
-  var intent = detectMessageIntent(input, type);
+function handleCommand(input, type, lang){
+  var intent = detectMessageIntent(input, type, lang);
+  
+  console.log({call:'detectMessageIntent', data:intent});
   // if not all required parameters return the intent to continue the conversation
   if (!("allRequiredParamsPresent" in intent.queryResult)){
     return intent;
   }
-  
-  var param = intent.queryResult.parameters;
-  var doc = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = doc.getActiveSheet();
-  var dataRange = sheet.getDataRange();
-  
-  var values = dataRange.getValues();
-  var colors = dataRange.getBackgrounds();
-  var count = 0;
-  var colIdx = convertCol(param.column);
-  var range = param.range || 'cells';
-  var color = param.color || 'red'; 
-  color = color.replace(/\s/g, "");
-  var value = param.number;
-  var operator = param.operator;
-  
-  // setup functions to handle action operators
-  if (range === 'cells'){
-    var highlightOp = 'colors[r][colIdx] = color;';
-  } else {
-    var highlightOp = 'for (var c=0; c < row.length; c++){ colors[r][c] = color; }';
+  try {
+    var param = intent.queryResult.parameters;
+    var doc = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = doc.getActiveSheet();
+    var dataRange = sheet.getDataRange();
+    
+    var values = dataRange.getValues();
+    var colors = dataRange.getBackgrounds();
+    var count = 0;
+    var colIdx = convertCol(param.column);
+    var range = param.range || 'cells';
+    var color = param.color || 'red'; 
+    color = color.replace(/\s/g, "");
+    var value = param.number;
+    var operator = param.operator;
+    
+    // setup functions to handle action operators
+    if (range === 'cells'){
+      var highlightOp = 'colors[r][colIdx] = color;';
+    } else {
+      var highlightOp = 'for (var c=0; c < row.length; c++){ colors[r][c] = color; }';
+    }
+    var highlightFn = new Function('colors', 'color', 'row', 'colIdx', 'r', 'if (row[colIdx] '+operator+value+'){'+highlightOp+'}');
+    
+    // loop over data range and apply highlights
+    for (var r=0; r<values.length; r++){
+      var row = values[r];
+      highlightFn(colors, color, row, colIdx, r);
+    }  
+    dataRange.setBackgrounds(colors);
+    return intent;
+  } catch(e) {
+    return intent;
   }
-  var highlightFn = new Function('colors', 'color', 'row', 'colIdx', 'r', 'if (row[colIdx] '+operator+value+'){'+highlightOp+'}');
-  
-  // loop over data range and apply highlights
-  for (var r=0; r<values.length; r++){
-    var row = values[r];
-    highlightFn(colors, color, row, colIdx, r);
-  }  
-  dataRange.setBackgrounds(colors);
-  return intent;
 }
 
 /**
@@ -90,8 +96,7 @@ function handleCommand(input, type){
  * @param {String} type of input
  * @return {object} JSON-formatted response
  */
-function detectMessageIntent(input, type, optLang){
-  var lang = optLang || 'en';
+function detectMessageIntent(input, type, lang){
   
   // setting up calls to Dialogflow with Goa
   var goa = cGoa.GoaApp.createGoa ('dialogflow_serviceaccount',
@@ -120,7 +125,6 @@ function detectMessageIntent(input, type, optLang){
                                        "languageCode": lang };
   } else if(type === 'audio') {
     requestResource.queryInput.audioConfig= {"audioEncoding": 'AUDIO_ENCODING_LINEAR_16',
-                                             "sampleRateHertz": 48000,
                                              "languageCode": lang };
     requestResource.inputAudio = extractBase64_(input);
   } else {
